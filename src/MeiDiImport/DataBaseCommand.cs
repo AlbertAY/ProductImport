@@ -78,6 +78,26 @@ namespace ClProductImport
 
             return conn.Execute(sql, model, transaction);
         }
+
+
+        /// <summary>
+        /// 更新产品基础信息
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="conn"></param>
+        /// <param name="transaction"></param>
+        /// <returns></returns>
+        public static int UpdateProduct(cl_Product model, SqlConnection conn, SqlTransaction transaction = null)
+        {
+            string sql = @"Update [dbo].[cl_Product]
+                                  SET [ProductName]=@ProductName
+                                        ,[ProductSpec]=@ProductSpec
+                                        ,[Unit]=@Unit
+                                        ,[Remarks]=@Remarks
+                                    WHERE ProductGUID=@ProductGUID";
+            return conn.Execute(sql, model, transaction);
+        }
+
         /// <summary>
         /// 保存产品扩展信息
         /// </summary>
@@ -103,6 +123,24 @@ namespace ClProductImport
                                            ,@ProductModel
                                            ,@YBFHQ
                                            ,@DHHQ)";
+            return conn.Execute(sql, model, transaction);
+        }
+        /// <summary>
+        /// 更新产品扩展信息
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="conn"></param>
+        /// <param name="transaction"></param>
+        /// <returns></returns>
+        public static int UpdateProductExt(cl_Product_Ext model, SqlConnection conn, SqlTransaction transaction = null)
+        {
+            string sql = @"Update [dbo].[cl_Product_Ext]
+                                  SET brandName=@brandName
+                                      ,[Specifications]=@Specifications
+                                      ,[ProductModel]=@ProductModel
+                                      ,[YBFHQ]=@YBFHQ
+                                      ,[DHHQ]=@DHHQ
+                                   WHERE  ProductGUID=@ProductGUID";
             return conn.Execute(sql, model, transaction);
         }
         /// <summary>

@@ -372,6 +372,7 @@ namespace ClProductImport
                 {
                     addNew += DataBaseCommand.SaveProduct2QuotaAttribute(product2QuotaAttributeList, conn, transaction);//保存枚举值产品关系
                     addNew += DataBaseCommand.SavaProductAttributeValue(productAttributeValueList, conn, transaction);//保存文本信息
+                    SaveProductBaseInfo(entity, productGuid, conn);
                     transaction.Commit();
                 }
                 catch (Exception ex)
@@ -396,6 +397,40 @@ namespace ClProductImport
             }
             msg += $"，并且指标属性值正常";
             return false;
+        }
+        /// <summary>
+        /// 更新产品基本信息
+        /// </summary>
+        /// <returns></returns>
+        public static int SaveProductBaseInfo(ExeclRow entity, Guid productGuid, SqlConnection conn)
+        {
+
+            //基本信息
+            cl_Product productModel = new cl_Product();
+            productModel.ProductGUID = productGuid;
+            productModel.ProductCode = entity.Code;
+            productModel.ProductName = entity.Name;
+            productModel.ProductTypeCode = entity.TypeCode;
+            productModel.Unit = entity.Unit;
+            productModel.QuotaAttributeNameList = entity.QuotaAttributeNameList;
+            productModel.Source = "工具导入";
+            productModel.CreateTime = DateTime.Now;
+            productModel.LastMenderDate = DateTime.Now;
+            productModel.PutInStorageState = "已入库";
+            productModel.Remarks = entity.Remake;
+            //扩展信息
+            cl_Product_Ext productExtModel = new cl_Product_Ext();
+            productExtModel.ID = Guid.NewGuid();
+            productExtModel.ProductGUID = productModel.ProductGUID;
+            productExtModel.brandName = entity.BrandName;
+            productExtModel.DHHQ = entity.ProductTime;
+            productExtModel.YBFHQ = entity.ExampleTime;
+            productExtModel.ProductModel = entity.ModelName;
+            productExtModel.Specifications = entity.Format;
+            int result = DataBaseCommand.UpdateProduct(productModel, conn);
+            result+=DataBaseCommand.SaveProductExt(productExtModel, conn);
+            return result;
+
         }
         /// <summary>
         /// 经过处理后的execl每行的数据对象
