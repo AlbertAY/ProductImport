@@ -312,7 +312,7 @@ namespace ClProductImport
         /// <returns></returns>
         public static bool UpdateDB(ExeclRow entity, Guid productGuid, SqlConnection conn, ref string msg)
         {
-            int result = 0, addNew = 0;
+            int result = 0, addNew = 0, updateBaseCount=0;
 
 
             //枚举信息
@@ -372,7 +372,7 @@ namespace ClProductImport
                 {
                     addNew += DataBaseCommand.SaveProduct2QuotaAttribute(product2QuotaAttributeList, conn, transaction);//保存枚举值产品关系
                     addNew += DataBaseCommand.SavaProductAttributeValue(productAttributeValueList, conn, transaction);//保存文本信息
-                    SaveProductBaseInfo(entity, productGuid, conn);
+                    updateBaseCount = UpdateProductBaseInfo(entity, productGuid, conn, transaction);
                     transaction.Commit();
                 }
                 catch (Exception ex)
@@ -385,6 +385,10 @@ namespace ClProductImport
                 }
             }
             msg = "该产品已经已存在";
+            if (updateBaseCount > 0)
+            {
+                msg += $",更新产品基本信息成功";
+            }
             if (result > 0)
             {
                 msg += $",更新属性关系{result}次";
@@ -394,15 +398,16 @@ namespace ClProductImport
             {
                 msg += $",新增属性关系关系{addNew}次";
                 return true;
-            }
+            }            
             msg += $"，并且指标属性值正常";
+            
             return false;
         }
         /// <summary>
         /// 更新产品基本信息
         /// </summary>
         /// <returns></returns>
-        public static int SaveProductBaseInfo(ExeclRow entity, Guid productGuid, SqlConnection conn)
+        public static int UpdateProductBaseInfo(ExeclRow entity, Guid productGuid, SqlConnection conn, SqlTransaction transaction)
         {
 
             //基本信息
@@ -421,14 +426,14 @@ namespace ClProductImport
             //扩展信息
             cl_Product_Ext productExtModel = new cl_Product_Ext();
             productExtModel.ID = Guid.NewGuid();
-            productExtModel.ProductGUID = productModel.ProductGUID;
+            productExtModel.ProductGUID = productGuid;
             productExtModel.brandName = entity.BrandName;
             productExtModel.DHHQ = entity.ProductTime;
             productExtModel.YBFHQ = entity.ExampleTime;
             productExtModel.ProductModel = entity.ModelName;
             productExtModel.Specifications = entity.Format;
-            int result = DataBaseCommand.UpdateProduct(productModel, conn);
-            result+=DataBaseCommand.SaveProductExt(productExtModel, conn);
+            int result = DataBaseCommand.UpdateProduct(productModel, conn, transaction);
+            result+=DataBaseCommand.UpdateProductExt(productExtModel, conn, transaction);
             return result;
 
         }

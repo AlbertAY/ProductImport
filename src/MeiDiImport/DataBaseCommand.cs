@@ -90,7 +90,7 @@ namespace ClProductImport
         public static int UpdateProduct(cl_Product model, SqlConnection conn, SqlTransaction transaction = null)
         {
             string sql = @"Update [dbo].[cl_Product]
-                                  SET [ProductName]=@ProductName
+                                  SET    [ProductName]=@ProductName
                                         ,[ProductSpec]=@ProductSpec
                                         ,[Unit]=@Unit
                                         ,[Remarks]=@Remarks
